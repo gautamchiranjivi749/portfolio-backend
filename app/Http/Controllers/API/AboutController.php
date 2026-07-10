@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreAboutRequest;
 use App\Http\Requests\UpdateAboutRequest;
 use App\Models\About;
+use App\Http\Resources\AboutResource;
 use Illuminate\Support\Facades\Storage;
 
 class AboutController extends Controller
@@ -20,8 +21,8 @@ class AboutController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'=> $about,
-        ]);
+            'data'=> AboutResource::collection($abouts),
+        ]); 
     }
 
     /**
@@ -43,11 +44,11 @@ class AboutController extends Controller
 
     $about = About::create($data);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'About created successfully.',
-        'data' => $about,
-    ], 201);
+   return response()->json([
+    'success' => true,
+    'message' => 'About created successfully.',
+    'data' => new AboutResource($about),
+], 201);
     }
 
     /**
@@ -57,7 +58,7 @@ class AboutController extends Controller
     {
          return response()->json([
         'success' => true,
-        'data' => $about,
+        'data' => new AboutResource($about),
     ]);
     }
 
@@ -90,11 +91,11 @@ class AboutController extends Controller
 
     $about->update($data);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'About updated successfully.',
-        'data' => $about,
-    ]);
+   return response()->json([
+    'success' => true,
+    'message' => 'About updated successfully.',
+    'data' => new AboutResource($about),
+]);
     }
 
     /**

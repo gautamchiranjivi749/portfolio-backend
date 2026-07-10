@@ -7,19 +7,28 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreSkillRequest;
 use App\Http\Requests\UpdateSkillRequest;
 use App\Models\Skill;
+use App\Http\Resources\SkillResource;
+
 
 class SkillController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)    
     {
-        $skills = Skill::orderBy('sort_order')->get();
+       $query = Skill::query();
+       
+       if ($request->filled('search')) {
+
+    $query->where('name', 'like', '%' . $request->search . '%');
+
+    }
+    $skills = $query->orderBy('sort_order')->get();
 
     return response()->json([
         'success' => true,
-        'data' => $skills,
+        'data' =>SkillResource::collection($skills),
     ]);
     }
 
@@ -33,7 +42,7 @@ class SkillController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Skill created successfully.',
-        'data' => $skill,
+        'data' => new SkillResource($skill),
     ], 201);
     }
 
@@ -44,7 +53,7 @@ class SkillController extends Controller
     {
          return response()->json([
         'success' => true,
-        'data' => $skill,
+        'data' => new SkillResource($skill),
          ]);
     }
 
@@ -58,7 +67,7 @@ class SkillController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Skill updated successfully.',
-        'data' => $skill,
+        'data' => new SkillResource($skill),
     ]);
 }
 

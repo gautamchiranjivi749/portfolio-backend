@@ -8,6 +8,8 @@ use App\Http\Controllers\API\EducationController;
 use App\Http\Controllers\API\CertificateController;
 use App\Http\Controllers\API\SocialLinkController;
 use App\Http\Controllers\API\ContactMessageController;
+use App\Http\Controllers\API\DashboardController;
+
 use App\Http\Controllers\API\AuthController;
 
 
@@ -36,7 +38,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('dashboard', [DashboardController::class, 'index']);
 
     Route::apiResource('about', AboutController::class);
 

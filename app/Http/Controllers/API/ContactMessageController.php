@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreContactMessageRequest;
 use App\Http\Requests\UpdateContactMessageRequest;
 use App\Models\Contact;
+use App\Http\Resources\ContactResource;
 
 class ContactMessageController extends Controller
 {
@@ -14,12 +15,14 @@ class ContactMessageController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-          return response()->json([
-            'success' => true,
-            'data' => Contact::latest()->get()
-        ]);
-    }
+{
+    $contacts = Contact::latest()->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => ContactResource::collection($contacts),
+    ]);
+}
 
     /**
      * Store a newly created resource in storage.
@@ -28,11 +31,11 @@ class ContactMessageController extends Controller
     {
         $message = Contact::create($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Message sent successfully.',
-            'data' => $message
-        ], 201);
+      return response()->json([
+        'success' => true,
+        'message' => 'Your message has been sent successfully.',
+        'data' => new ContactResource($contact),
+    ], 201);
     }
 
     /**
@@ -40,10 +43,10 @@ class ContactMessageController extends Controller
      */
      public function show(Contact $contact)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $contactMessage
-        ]);
+         return response()->json([
+        'success' => true,
+        'data' => new ContactResource($contact),
+    ]);
     }
 
     /**
@@ -54,10 +57,10 @@ class ContactMessageController extends Controller
         $contact->update($request->validated());
 
         return response()->json([
-            'success' => true,
-            'message' => 'Message updated successfully.',
-            'data' => $contact
-        ]);
+        'success' => true,
+        'message' => 'Contact updated successfully.',
+        'data' => new ContactResource($contact),
+    ]);
     }
 
     /**

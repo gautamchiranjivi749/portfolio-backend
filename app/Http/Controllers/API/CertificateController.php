@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreCertificateRequest;
 use App\Http\Requests\UpdateCertificateRequest;
 use App\Models\Certificate;
+use App\Http\Resources\CertificateResource;
 use Illuminate\Support\Facades\Storage;
 
 class CertificateController extends Controller
@@ -18,9 +19,10 @@ class CertificateController extends Controller
     {
          $certificates = Certificate::orderBy('sort_order')->get();
 
+    
     return response()->json([
         'success' => true,
-        'data' => $certificates
+        'data' => CertificateResource::collection($certificates),
     ]);
     }
 
@@ -43,7 +45,7 @@ class CertificateController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Certificate created successfully.',
-        'data' => $certificate
+        'data' => new CertificateResource($certificate),
     ], 201);
 
     }
@@ -53,9 +55,9 @@ class CertificateController extends Controller
      */
     public function show(Certificate $certificate)
     {
-          return response()->json([
+        return response()->json([
         'success' => true,
-        'data' => $certificate
+        'data' => new CertificateResource($certificate),
     ]);
     }
 
@@ -79,10 +81,10 @@ class CertificateController extends Controller
 
     $certificate->update($data);
 
-    return response()->json([
+   return response()->json([
         'success' => true,
         'message' => 'Certificate updated successfully.',
-        'data' => $certificate
+        'data' => new CertificateResource($certificate),
     ]);
 }
 

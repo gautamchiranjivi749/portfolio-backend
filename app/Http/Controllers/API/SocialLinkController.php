@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreSocialLinkRequest;
 use App\Http\Requests\UpdateSocialLinkRequest;
 use App\Models\SocialLink;
+use App\Http\Resources\SocialLinkResource;
+use Illuminate\Support\Facades\Storage;
 
 class SocialLinkController extends Controller
 {
@@ -14,11 +16,13 @@ class SocialLinkController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-         return response()->json([
-            'success' => true,
-            'data' => SocialLink::latest()->get()
-        ]);
+    { 
+    $socialLinks = SocialLink::orderBy('sort_order')->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => SocialLinkResource::collection($socialLinks),
+    ]);
     }
 
     /**
@@ -26,13 +30,19 @@ class SocialLinkController extends Controller
      */
      public function store(StoreSocialLinkRequest $request)
     {
-        $social = SocialLink::create($request->validated());
+        $data = $request->validated();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link created successfully.',
-            'data' => $social
-        ], 201);
+    if ($request->hasFile('icon')) {
+        $data['icon'] = $request->file('icon')->store('social-links', 'public');
+    }
+
+    $socialLink = SocialLink::create($data);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Social link created successfully.',
+        'data' => new SocialLinkResource($socialLink),
+    ], 201);
     }
 
     /**
@@ -40,10 +50,10 @@ class SocialLinkController extends Controller
      */
      public function show(SocialLink $socialLink)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $socialLink
-        ]);
+          return response()->json([
+        'success' => true,
+        'data' => new SocialLinkResource($socialLink),
+    ]);
     }
 
     /**
@@ -51,13 +61,24 @@ class SocialLinkController extends Controller
      */
      public function update(UpdateSocialLinkRequest $request, SocialLink $socialLink)
     {
-        $socialLink->update($request->validated());
+        $data = $request->validated();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link updated successfully.',
-            'data' => $socialLink
-        ]);
+    if ($request->hasFile('icon')) {
+
+        if ($socialLink->icon) {
+            Storage::disk('public')->delete($socialLink->icon);
+        }
+
+        $data['icon'] = $request->file('icon')->store('social-links', 'public');
+    }
+
+    $socialLink->update($data);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Social link updated successfully.',
+        'data' => new SocialLinkResource($socialLink),
+    ]);
     }
 
     /**
@@ -65,11 +86,15 @@ class SocialLinkController extends Controller
      */
        public function destroy(SocialLink $socialLink)
     {
-        $socialLink->delete();
+        if ($socialLink->icon) {
+        Storage::disk('public')->delete($socialLink->icon);
+    }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link deleted successfully.'
-        ]);
+    $socialLink->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Social link deleted successfully.',
+    ]);
     }
 }

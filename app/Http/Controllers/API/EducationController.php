@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreEducationRequest;
 use App\Http\Requests\UpdateEducationRequest;
 use App\Models\Education;
+use App\Http\Resources\EducationResource;
 
 class EducationController extends Controller
 {
@@ -17,10 +18,10 @@ class EducationController extends Controller
     {
         $educations = Education::orderBy('sort_order')->get();
 
-        return response()->json([
-            'success'=> true,
-            'data'=> $educations,
-        ]);
+       return response()->json([
+        'success' => true,
+        'data' => EducationResource::collection($educations),
+    ]);
     }
 
     /**
@@ -30,11 +31,11 @@ class EducationController extends Controller
     {
         $education =Education::create($request->validated());
 
-        return response()->json([
-             'success'=> true,
-             'message'=> 'Education created successfully.',
-             'data'=> $education,
-         ], 201);
+         return response()->json([
+        'success' => true,
+        'message' => 'Education created successfully.',
+        'data' => new EducationResource($education),
+    ], 201);
     }
 
     /**
@@ -42,9 +43,9 @@ class EducationController extends Controller
      */
     public function show(Education $education)
     {
-         return response()->json([
+        return response()->json([
         'success' => true,
-        'data' => $education
+        'data' => new EducationResource($education),
     ]);
     }
 
@@ -55,10 +56,10 @@ class EducationController extends Controller
     {
           $education->update($request->validated());
 
-    return response()->json([
+     return response()->json([
         'success' => true,
         'message' => 'Education updated successfully.',
-        'data' => $education
+        'data' => new EducationResource($education),
     ]);
     }
 
