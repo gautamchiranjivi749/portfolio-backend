@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('abouts', function (Blueprint $table) {
+        Schema::create('skills', function (Blueprint $table) {
             $table->id();
 
             $table->string('name');
-            $table->string('profession');
-            $table->longText('description');
-
-            $table->string('profile_image')->nullable();
-            $table->string('resume')->nullable();
-            
+            $table->integer('percentage');
+            $table->string('icon')->nullable();
+            $table->integer('sort_order')->default(0);
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('abouts');
+        Schema::dropIfExists('skills');
     }
 };
