@@ -15,14 +15,62 @@ class SocialLinkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     { 
-    $socialLinks = SocialLink::orderBy('sort_order')->get();
+    $query = SocialLink::query();
 
-    return response()->json([
-        'success' => true,
-        'data' => SocialLinkResource::collection($socialLinks),
-    ]);
+    if ($request->filled('search')) {
+
+    $query->where('platform', 'like', '%' . $request->search . '%');
+
+}
+  if($request->has('status')){
+        $query->where('status', $request->status);
+    }
+
+       // Allowed sort columns
+    $allowedSorts = [
+        'platform',
+        'sort_order',
+        'created_at',
+    ];
+
+    // Read sort parameter
+    $sort = $request->get('sort', 'sort_order');
+
+    // Default direction
+    $direction = 'asc';
+
+    // Check for descending sort
+    if (str_starts_with($sort, '-')) {
+
+        $direction = 'desc';
+
+        $sort = substr($sort, 1);
+
+    }
+
+    // Validate sort column
+    if (! in_array($sort, $allowedSorts)) {
+
+        $sort = 'sort_order';
+
+    }
+
+    // Apply sorting
+    $query->orderBy($sort, $direction);
+
+    // Step 3: Sort and fetch data
+    // Pagination
+    $perPage = $request->integer('per_page', 10);
+
+    $socialLinks = $query->paginate($perPage);
+
+       
+   return $this->paginatedResponse(
+    SocialLinkResource::collection($socialLinks),
+    $socialLinks
+);
     }
 
     /**
@@ -38,11 +86,11 @@ class SocialLinkController extends Controller
 
     $socialLink = SocialLink::create($data);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Social link created successfully.',
-        'data' => new SocialLinkResource($socialLink),
-    ], 201);
+    return $this->successResponse(
+        new SocialLinkResource($socialLink),
+        'Social link created successfully.',
+        201
+    );
     }
 
     /**
@@ -50,10 +98,9 @@ class SocialLinkController extends Controller
      */
      public function show(SocialLink $socialLink)
     {
-          return response()->json([
-        'success' => true,
-        'data' => new SocialLinkResource($socialLink),
-    ]);
+          return $this->successResponse(
+    new SocialLinkResource($socialLink)
+);
     }
 
     /**
@@ -74,11 +121,10 @@ class SocialLinkController extends Controller
 
     $socialLink->update($data);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Social link updated successfully.',
-        'data' => new SocialLinkResource($socialLink),
-    ]);
+   return $this->successResponse(
+        new SocialLinkResource($socialLink),
+        'Social link updated successfully.'
+    );
     }
 
     /**
@@ -92,9 +138,9 @@ class SocialLinkController extends Controller
 
     $socialLink->delete();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Social link deleted successfully.',
-    ]);
+    return $this->successResponse(
+        null,
+        'Social link deleted successfully.'
+    );
     }
 }

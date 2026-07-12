@@ -5,6 +5,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,19 +20,48 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+   ->withExceptions(function (Exceptions $exceptions) {
 
-        $exceptions->render(function (AuthenticationException $e, $request) {
+    // Model not found
+    $exceptions->render(function (ModelNotFoundException $e, $request) {
 
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated.'
-                ], Response::HTTP_UNAUTHORIZED);
-            }
+        if ($request->is('api/*')) {
+            $model = class_basename($e->getModel());
 
-            return null;
-        });
+            return response()->json([
+                'success' => false,
+                'message' => "{$model} not found.",
+            ], 404);
+        }
 
-    })
-    ->create();
+    });
+
+    // Route not found
+    $exceptions->render(function (NotFoundHttpException $e, $request) {
+
+        if ($request->is('api/*')) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found.',
+            ], 404);
+
+        }
+
+    });
+
+    // Unauthenticated
+    $exceptions->render(function (AuthenticationException $e, $request) {
+
+        if ($request->is('api/*')) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+            ], Response::HTTP_UNAUTHORIZED);
+
+        }
+
+    });
+})
+->create();

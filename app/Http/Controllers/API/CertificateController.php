@@ -15,15 +15,66 @@ class CertificateController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-         $certificates = Certificate::orderBy('sort_order')->get();
+            public function index(Request $request)
+            {
+                $query = Certificate::query();
+                if ($request->filled('search')) {
 
+            $query->where(function ($q) use ($request) {
+
+                $q->where('title', 'like', '%' . $request->search . '%')
+                ->orWhere('organization', 'like', '%' . $request->search . '%');
+
+            });
+
+        }
+          if($request->has('status')){
+        $query->where('status', $request->status);
+
+    }
+       // Allowed sort columns
+    $allowedSorts = [
+        'title',
+        'organization',
+        'issue_date',
+        'sort_order',
+        'created_at',
+    ];
+
+    // Read sort parameter
+    $sort = $request->get('sort', 'sort_order');
+
+    // Default direction
+    $direction = 'asc';
+
+    // Check for descending sort
+    if (str_starts_with($sort, '-')) {
+
+        $direction = 'desc';
+
+        $sort = substr($sort, 1);
+
+    }
+
+    // Validate sort column
+    if (! in_array($sort, $allowedSorts)) {
+
+        $sort = 'sort_order';
+
+    }
+
+    // Apply sorting
+    $query->orderBy($sort, $direction);
+
+    // Step 3: Sort and fetch data
+     $perPage = $request->integer('per_page', 10);
+
+    $certificates = $query->paginate($perPage);
     
-    return response()->json([
-        'success' => true,
-        'data' => CertificateResource::collection($certificates),
-    ]);
+    return $this->paginatedResponse(
+    CertificateResource::collection($certificates),
+    $certificates
+);
     }
 
     /**
@@ -42,11 +93,11 @@ class CertificateController extends Controller
 
     $certificate = Certificate::create($data);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Certificate created successfully.',
-        'data' => new CertificateResource($certificate),
-    ], 201);
+   return $this->successResponse(
+    new CertificateResource($certificate),
+    'Certificate created successfully.',
+    201
+);
 
     }
 
@@ -55,10 +106,9 @@ class CertificateController extends Controller
      */
     public function show(Certificate $certificate)
     {
-        return response()->json([
-        'success' => true,
-        'data' => new CertificateResource($certificate),
-    ]);
+       return $this->successResponse(
+    new CertificateResource($certificate)
+);
     }
 
     /**
@@ -81,11 +131,10 @@ class CertificateController extends Controller
 
     $certificate->update($data);
 
-   return response()->json([
-        'success' => true,
-        'message' => 'Certificate updated successfully.',
-        'data' => new CertificateResource($certificate),
-    ]);
+   return $this->successResponse(
+    new CertificateResource($certificate),
+    'Certificate updated successfully.'
+);
 }
 
     /**
@@ -99,9 +148,9 @@ class CertificateController extends Controller
 
     $certificate->delete();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Certificate deleted successfully.'
-    ]);
+    return $this->successResponse(
+    null,
+    'Certificate deleted successfully.'
+);
 }
 }
