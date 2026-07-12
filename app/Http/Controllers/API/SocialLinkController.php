@@ -7,18 +7,70 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreSocialLinkRequest;
 use App\Http\Requests\UpdateSocialLinkRequest;
 use App\Models\SocialLink;
+use App\Http\Resources\SocialLinkResource;
+use Illuminate\Support\Facades\Storage;
 
 class SocialLinkController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-         return response()->json([
-            'success' => true,
-            'data' => SocialLink::latest()->get()
-        ]);
+    public function index(Request $request)
+    { 
+    $query = SocialLink::query();
+
+    if ($request->filled('search')) {
+
+    $query->where('platform', 'like', '%' . $request->search . '%');
+
+}
+  if($request->has('status')){
+        $query->where('status', $request->status);
+    }
+
+       // Allowed sort columns
+    $allowedSorts = [
+        'platform',
+        'sort_order',
+        'created_at',
+    ];
+
+    // Read sort parameter
+    $sort = $request->get('sort', 'sort_order');
+
+    // Default direction
+    $direction = 'asc';
+
+    // Check for descending sort
+    if (str_starts_with($sort, '-')) {
+
+        $direction = 'desc';
+
+        $sort = substr($sort, 1);
+
+    }
+
+    // Validate sort column
+    if (! in_array($sort, $allowedSorts)) {
+
+        $sort = 'sort_order';
+
+    }
+
+    // Apply sorting
+    $query->orderBy($sort, $direction);
+
+    // Step 3: Sort and fetch data
+    // Pagination
+    $perPage = $request->integer('per_page', 10);
+
+    $socialLinks = $query->paginate($perPage);
+
+       
+   return $this->paginatedResponse(
+    SocialLinkResource::collection($socialLinks),
+    $socialLinks
+);
     }
 
     /**
@@ -26,13 +78,19 @@ class SocialLinkController extends Controller
      */
      public function store(StoreSocialLinkRequest $request)
     {
-        $social = SocialLink::create($request->validated());
+        $data = $request->validated();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link created successfully.',
-            'data' => $social
-        ], 201);
+    if ($request->hasFile('icon')) {
+        $data['icon'] = $request->file('icon')->store('social-links', 'public');
+    }
+
+    $socialLink = SocialLink::create($data);
+
+    return $this->successResponse(
+        new SocialLinkResource($socialLink),
+        'Social link created successfully.',
+        201
+    );
     }
 
     /**
@@ -40,10 +98,9 @@ class SocialLinkController extends Controller
      */
      public function show(SocialLink $socialLink)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $socialLink
-        ]);
+          return $this->successResponse(
+    new SocialLinkResource($socialLink)
+);
     }
 
     /**
@@ -51,13 +108,23 @@ class SocialLinkController extends Controller
      */
      public function update(UpdateSocialLinkRequest $request, SocialLink $socialLink)
     {
-        $socialLink->update($request->validated());
+        $data = $request->validated();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link updated successfully.',
-            'data' => $socialLink
-        ]);
+    if ($request->hasFile('icon')) {
+
+        if ($socialLink->icon) {
+            Storage::disk('public')->delete($socialLink->icon);
+        }
+
+        $data['icon'] = $request->file('icon')->store('social-links', 'public');
+    }
+
+    $socialLink->update($data);
+
+   return $this->successResponse(
+        new SocialLinkResource($socialLink),
+        'Social link updated successfully.'
+    );
     }
 
     /**
@@ -65,11 +132,15 @@ class SocialLinkController extends Controller
      */
        public function destroy(SocialLink $socialLink)
     {
-        $socialLink->delete();
+        if ($socialLink->icon) {
+        Storage::disk('public')->delete($socialLink->icon);
+    }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Social link deleted successfully.'
-        ]);
+    $socialLink->delete();
+
+    return $this->successResponse(
+        null,
+        'Social link deleted successfully.'
+    );
     }
 }
