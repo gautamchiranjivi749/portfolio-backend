@@ -18,10 +18,9 @@ class AboutController extends Controller
     public function index()
     {
         $about = About::latest()->first();
-
         return response()->json([
             'success' => true,
-            'data'=> AboutResource::collection($abouts),
+            'data'=> new AboutResource($about),
         ]); 
     }
 
