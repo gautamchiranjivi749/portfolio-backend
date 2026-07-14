@@ -21,9 +21,9 @@ class SkillResource extends JsonResource
 
             'percentage' => (int) $this->percentage,
 
-            'icon' => $this->icon
-                ? asset('storage/' . $this->icon)
-                : null,
+            'icon' => $this->icon,
+                // ? asset('storage/' . $this->icon)
+                // : null,
 
             'sort_order' => (int) $this->sort_order,
 
