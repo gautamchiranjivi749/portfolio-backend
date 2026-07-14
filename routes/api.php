@@ -9,6 +9,7 @@ use App\Http\Controllers\API\CertificateController;
 use App\Http\Controllers\API\SocialLinkController;
 use App\Http\Controllers\API\ContactMessageController;
 use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\ServiceController;
 
 use App\Http\Controllers\API\AuthController;
 
@@ -30,6 +31,9 @@ Route::prefix('public')->group(function () {
 
     Route::post('/contact', [ContactMessageController::class, 'store']);
 
+    Route::get('/services', [ServiceController::class, 'index']);
+
+
 });
 
 //for authenticated users
@@ -50,7 +54,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
     // Route::apiResource('projects', ProjectController::class);
 
-    // Route::apiResource('services', ServiceController::class);
+    Route::apiResource('services', ServiceController::class);
 
     // Route::apiResource('experiences', ExperienceController::class);
 
