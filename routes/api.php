@@ -38,7 +38,32 @@ Route::prefix('public')->group(function () {
 
 //for authenticated users
 
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+// Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+
+//     Route::post('/logout', [AuthController::class, 'logout']);
+
+//     Route::get('dashboard', [DashboardController::class, 'index']);
+
+//     Route::apiResource('about', AboutController::class);
+
+//     Route::apiResource('skills', SkillController::class);
+
+//     Route::apiResource('educations', EducationController::class);
+
+//     Route::apiResource('certificates', CertificateController::class);
+
+//     // Route::apiResource('projects', ProjectController::class);
+
+//     Route::apiResource('services', ServiceController::class);
+
+//     // Route::apiResource('experiences', ExperienceController::class);
+
+//     Route::apiResource('social-links', SocialLinkController::class);
+
+//     Route::apiResource('contacts', ContactMessageController::class)->except(['store']);
+
+// });
+ Route::prefix('admin')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -64,11 +89,16 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
 
 });
 
-    //for admin login
-Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])
-        ->middleware('throttle:5,1'); // limits to 5 attempts per minute
-});
+//     //for admin login
+// Route::prefix('auth')->group(function () {
+//     Route::post('/login', [AuthController::class, 'login'])
+//         ->middleware('throttle:5,1'); // limits to 5 attempts per minute
+// });
+//     //for admin login
+// 
+  Route::post('/login', [AuthController::class, 'login']);
+//      
+
 
 
 
