@@ -17,6 +17,7 @@ class Education extends Model
         'field_of_study',
         'start_year',
         'end_year',
+        'gpa',
         'description',
         'sort_order',
         'status',
