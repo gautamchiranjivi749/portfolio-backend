@@ -109,7 +109,7 @@ public function index(Request $request)
      */
     public function update(UpdateEducationRequest $request, Education $education)
     {
-         $education->update($request->validated());
+        $education->update($request->validated());
 
      return $this->successResponse(
     new EducationResource($education),

@@ -29,6 +29,7 @@ class StoreEducationRequest extends FormRequest
         'start_year' => 'required|digits:4',
         'end_year' => 'nullable|digits:4',
         'description' => 'nullable|string',
+        'gpa' => 'nullable|numeric|between:0,4.00',
         'sort_order' => 'nullable|integer',
         'status' => 'nullable|boolean',
         ];

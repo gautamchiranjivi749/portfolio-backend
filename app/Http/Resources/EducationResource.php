@@ -25,6 +25,8 @@ class EducationResource extends JsonResource
 
             'start_year' => $this->start_year,
 
+            'gpa'=>$this->gpa,
+
             'end_year' => $this->end_year,
 
             'description' => $this->description,
