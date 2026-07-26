@@ -17,10 +17,10 @@ class AboutController extends Controller
      */
     public function index()
     {
-        $about = About::latest()->first();
+         $abouts = About::all();
         return response()->json([
             'success' => true,
-            'data'=> new AboutResource($about),
+       'data' => AboutResource::collection($abouts),
         ]); 
     }
 
