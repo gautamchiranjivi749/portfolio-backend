@@ -10,8 +10,8 @@ use App\Http\Controllers\API\SocialLinkController;
 use App\Http\Controllers\API\ContactMessageController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\ServiceController;
-
 use App\Http\Controllers\API\AuthController;
+
 
 
 
@@ -61,12 +61,15 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::apiResource('social-links', SocialLinkController::class);
 
     Route::apiResource('contacts', ContactMessageController::class)->except(['store']);
+    
+    Route::get('/me', [AuthController::class, 'me']);
 
 });
  
 
     //for admin login
 Route::prefix('auth')->group(function () {
+      Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('throttle:5,1'); // limits to 5 attempts per minute
 });

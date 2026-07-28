@@ -7,9 +7,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-
+use App\Http\Requests\RegisterRequest;
 class AuthController extends Controller
 {
+     public function register(RegisterRequest $request)
+    {
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+        ]);
+
+        $token = $user->createToken('admin-token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin registered successfully.',
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ], 201);
+    }
+    
     public function login(Request $request)
 {
     $credentials = $request->validate([
