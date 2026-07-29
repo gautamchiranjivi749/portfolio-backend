@@ -11,7 +11,7 @@ use App\Http\Controllers\API\ContactMessageController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\ServiceController;
 use App\Http\Controllers\API\AuthController;
-
+use App\Http\Controllers\API\PublicPortfolioController;
 
 
 
@@ -32,6 +32,8 @@ Route::prefix('public')->group(function () {
     Route::post('/contact', [ContactMessageController::class, 'store']);
 
     Route::get('/services', [ServiceController::class, 'index']);
+
+    Route::post('/public/{username}/contact', [ContactMessageController::class, 'store']);
 
 
 });
@@ -75,7 +77,11 @@ Route::prefix('auth')->group(function () {
 });
 
 
+Route::prefix('public')->group(function () {
 
+    Route::get('{username}', [PublicPortfolioController::class, 'index']);
+
+});
 
 
 

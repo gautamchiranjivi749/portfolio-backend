@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreContactMessageRequest;
 use App\Http\Requests\UpdateContactMessageRequest;
 use App\Models\Contact;
+ use App\Models\User;
 use App\Http\Resources\ContactResource;
 
 class ContactMessageController extends Controller
@@ -98,15 +99,23 @@ class ContactMessageController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreContactMessageRequest $request)
+  
+public function store(StoreContactMessageRequest $request, $username)
 {
-    $message = Contact::create($request->validated());
+    $user = User::where('username', $username)->firstOrFail();
 
-    return $this->successResponse(
-        new ContactResource($message),
-        'Your message has been sent successfully.',
-        201
-    );
+    $contactMessage = $user->contactMessages()->create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'subject' => $request->subject,
+        'message' => $request->message,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Message sent successfully.',
+        'data' => $contactMessage,
+    ], 201);
 }
 
     /**

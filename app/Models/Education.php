@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 
 class Education extends Model
 {
@@ -12,6 +13,7 @@ class Education extends Model
     protected $table = 'educations';
 
     protected $fillable = [
+        'user_id',
         'institution_name',
         'degree',
         'field_of_study',
@@ -26,4 +28,8 @@ class Education extends Model
     protected $casts = [
         'status' => 'boolean',
     ];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 }
