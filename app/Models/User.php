@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\About;
+use App\Models\Skill;
+use App\Models\Education;
+use App\Models\Service;
+use App\Models\Certificate;
+use App\Models\SocialLink;
+use App\Models\Contact;
 
 class User extends Authenticatable
 {
@@ -21,6 +28,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role',
@@ -49,4 +57,38 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+   public function abouts()
+{
+    return $this->hasMany(About::class);
+}
+
+public function skills()
+{
+    return $this->hasMany(Skill::class);
+}
+
+public function educations()
+{
+    return $this->hasMany(Education::class);
+}
+
+public function services()
+{
+    return $this->hasMany(Service::class);
+}
+
+public function certificates()
+{
+    return $this->hasMany(Certificate::class);
+}
+
+public function socialLinks()
+{
+    return $this->hasMany(SocialLink::class);
+}
+
+public function contacts()
+{
+    return $this->hasMany(Contact::class);
+}
 }

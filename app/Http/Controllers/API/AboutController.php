@@ -15,100 +15,74 @@ class AboutController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-         $abouts = About::all();
-        return response()->json([
-            'success' => true,
-       'data' => AboutResource::collection($abouts),
-        ]); 
-    }
+   public function index()
+{
+    $abouts = About::where('user_id', auth()->id())
+                    ->latest()
+                    ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => AboutResource::collection($abouts),
+    ]);
+}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAboutRequest $request)
-    {
-        $data = $request->validated();
+   public function store(StoreAboutRequest $request)
+{
+    $data = $request->validated();
 
-        if ($request->hasFile('profile_image')) {
-        $data['profile_image'] = $request->file('profile_image')
-            ->store('abouts', 'public');
-    }
-
-    if ($request->hasFile('resume')) {
-        $data['resume'] = $request->file('resume')
-            ->store('resumes', 'public');
-    }
+    $data['user_id'] = auth()->id();
 
     $about = About::create($data);
 
-   return response()->json([
-    'success' => true,
-    'message' => 'About created successfully.',
-    'data' => new AboutResource($about),
-], 201);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'About created successfully.',
+        'data' => new AboutResource($about),
+    ], 201);
+}
 
     /**
      * Display the specified resource.
      */
-    public function show(About  $about)
-    {
-         return response()->json([
+  public function show($id)
+{
+    $about = About::where('user_id', auth()->id())
+                  ->findOrFail($id);
+
+    return response()->json([
         'success' => true,
         'data' => new AboutResource($about),
     ]);
-    }
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAboutRequest $request, About $about)
-    {
-         $data = $request->validated();
+   public function update(UpdateAboutRequest $request, $id)
+{
+    $about = About::where('user_id', auth()->id())
+                  ->findOrFail($id);
 
-    if ($request->hasFile('profile_image')) {
+    $about->update($request->validated());
 
-        if ($about->profile_image) {
-            Storage::disk('public')->delete($about->profile_image);
-        }
-
-        $data['profile_image'] = $request->file('profile_image')
-            ->store('abouts', 'public');
-    }
-
-    if ($request->hasFile('resume')) {
-
-        if ($about->resume) {
-            Storage::disk('public')->delete($about->resume);
-        }
-
-        $data['resume'] = $request->file('resume')
-            ->store('resumes', 'public');
-    }
-
-    $about->update($data);
-
-   return response()->json([
-    'success' => true,
-    'message' => 'About updated successfully.',
-    'data' => new AboutResource($about),
-]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'About updated successfully.',
+        'data' => new AboutResource($about),
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(About $about)
-    {
-         if ($about->profile_image) {
-        Storage::disk('public')->delete($about->profile_image);
-    }
-
-    if ($about->resume) {
-        Storage::disk('public')->delete($about->resume);
-    }
+  public function destroy($id)
+{
+    $about = About::where('user_id', auth()->id())
+                  ->findOrFail($id);
 
     $about->delete();
 
@@ -116,5 +90,5 @@ class AboutController extends Controller
         'success' => true,
         'message' => 'About deleted successfully.',
     ]);
-    }
+}
 }

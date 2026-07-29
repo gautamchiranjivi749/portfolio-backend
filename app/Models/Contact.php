@@ -11,6 +11,7 @@ class Contact extends Model
 
     protected $fillable = [
         'name',
+        'user_id',
         'email',
         'subject',
         'message',
@@ -20,4 +21,8 @@ class Contact extends Model
      protected $casts = [
         'is_read' => 'boolean',
     ];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 }
