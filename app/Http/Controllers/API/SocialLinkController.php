@@ -76,22 +76,26 @@ class SocialLinkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-     public function store(StoreSocialLinkRequest $request)
-    {
-        $data = $request->validated();
+   public function store(StoreSocialLinkRequest $request)
+{
+    $data = $request->validated();
 
+    // Upload icon if provided
     if ($request->hasFile('icon')) {
         $data['icon'] = $request->file('icon')->store('social-links', 'public');
     }
 
-    $socialLink = SocialLink::create($data);
+    // Create social link for the authenticated user
+    $socialLink = auth()->user()
+        ->socialLinks()
+        ->create($data);
 
     return $this->successResponse(
         new SocialLinkResource($socialLink),
         'Social link created successfully.',
         201
     );
-    }
+}
 
     /**
      * Display the specified resource.
