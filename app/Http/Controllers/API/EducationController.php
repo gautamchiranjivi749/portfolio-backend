@@ -83,16 +83,18 @@ public function index(Request $request)
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEducationRequest $request)
-    {
-        $education =Education::create($request->validated());
+  public function store(StoreEducationRequest $request)
+{
+    $education = auth()->user()
+        ->educations()
+        ->create($request->validated());
 
-        return $this->successResponse(
+    return $this->successResponse(
         new EducationResource($education),
         'Education created successfully.',
         201
-);
-    }
+    );
+}
 
     /**
      * Display the specified resource.

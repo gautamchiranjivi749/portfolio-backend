@@ -23,6 +23,7 @@ class StoreCertificateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            
         'title' => 'required|string|max:255',
         'organization' => 'required|string|max:255',
         'issue_date' => 'nullable|date',

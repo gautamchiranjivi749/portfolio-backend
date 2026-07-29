@@ -80,26 +80,29 @@ class CertificateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCertificateRequest $request)
-    {
-            $data = $request->validated();
+   public function store(StoreCertificateRequest $request)
+{
+    $data = $request->validated();
 
+    // Assign the logged-in user's ID
+    $data['user_id'] = auth()->id();
+
+    // Upload image if provided
     if ($request->hasFile('image')) {
-
         $data['image'] = $request
             ->file('image')
             ->store('certificates', 'public');
     }
 
+    // Create certificate
     $certificate = Certificate::create($data);
 
-   return $this->successResponse(
-    new CertificateResource($certificate),
-    'Certificate created successfully.',
-    201
-);
-
-    }
+    return $this->successResponse(
+        new CertificateResource($certificate),
+        'Certificate created successfully.',
+        201
+    );
+}
 
     /**
      * Display the specified resource.

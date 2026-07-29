@@ -83,14 +83,16 @@ class SkillController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreSkillRequest $request)
-    {
-         $skill = Skill::create($request->validated());
+{
+    $skill = auth()->user()
+        ->skills()
+        ->create($request->validated());
 
     return $this->successResponse(
-    new SkillResource($skill),
-    'Skill created successfully.',
-    201
-);
+        new SkillResource($skill),
+        'Skill created successfully.',
+        201
+    );
 }
 
     /**
