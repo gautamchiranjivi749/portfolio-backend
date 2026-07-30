@@ -15,15 +15,13 @@ class AboutController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index()
+  public function index()
 {
-    $abouts = About::where('user_id', auth()->id())
-                    ->latest()
-                    ->get();
+    $about = About::where('user_id', auth()->id())->first();
 
     return response()->json([
         'success' => true,
-        'data' => AboutResource::collection($abouts),
+        'data' => $about ? new AboutResource($about) : null,
     ]);
 }
 
@@ -36,13 +34,28 @@ class AboutController extends Controller
 
     $data['user_id'] = auth()->id();
 
-    $about = About::create($data);
+    // Upload profile image
+    if ($request->hasFile('profile_image')) {
+        $data['profile_image'] = $request->file('profile_image')
+            ->store('abouts/profile-images', 'public');
+    }
+
+    // Upload resume
+    if ($request->hasFile('resume')) {
+        $data['resume'] = $request->file('resume')
+            ->store('abouts/resumes', 'public');
+    }
+
+    $about = About::updateOrCreate(
+        ['user_id' => auth()->id()],
+        $data
+    );
 
     return response()->json([
         'success' => true,
-        'message' => 'About created successfully.',
+        'message' => 'About saved successfully.',
         'data' => new AboutResource($about),
-    ], 201);
+    ], 200);
 }
 
     /**
