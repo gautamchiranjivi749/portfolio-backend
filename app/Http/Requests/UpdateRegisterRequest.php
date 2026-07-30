@@ -14,6 +14,8 @@ class UpdateRegisterRequest extends FormRequest
 
     public function rules(): array
     {
+        $user = $this->route('user');
+
         return [
             'name' => 'required|string|max:255',
 
@@ -21,16 +23,14 @@ class UpdateRegisterRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('users', 'username')->ignore($this->user),
+                Rule::unique('users')->ignore($user),
             ],
 
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users', 'email')->ignore($this->user),
+                Rule::unique('users')->ignore($user),
             ],
-
-            'password' => 'nullable|string|min:6|confirmed',
         ];
     }
 }
