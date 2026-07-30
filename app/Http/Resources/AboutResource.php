@@ -24,13 +24,13 @@ class AboutResource extends JsonResource
 
             'description' => $this->description,
 
-            'profile_image' => $this->profile_image
-                ? asset('storage/'.$this->profile_image)
-                : null,
+            'profile_image' => $this->profile_image,
+                // ? asset('storage/'.$this->profile_image)
+                // : null,
 
-            'resume' => $this->resume
-                ? asset('storage/'.$this->resume)
-                : null,
+            'resume' => $this->resume,
+                // ? asset('storage/'.$this->resume)
+                // : null,
 
             'created_at' => $this->created_at,
 
