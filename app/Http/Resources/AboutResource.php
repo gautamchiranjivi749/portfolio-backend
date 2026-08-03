@@ -28,7 +28,7 @@ class AboutResource extends JsonResource
             ? asset('storage/' . $this->profile_image)
             : null,
 
-        'resume' => $this->resume
+            'resume' => $this->resume
             ? asset('storage/' . $this->resume)
             : null,
 
