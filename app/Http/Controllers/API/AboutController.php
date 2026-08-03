@@ -80,7 +80,32 @@ class AboutController extends Controller
     $about = About::where('user_id', auth()->id())
                   ->findOrFail($id);
 
-    $about->update($request->validated());
+    $data = $request->validated();
+
+    // Upload new profile image
+    if ($request->hasFile('profile_image')) {
+
+        // Delete old image
+        if ($about->profile_image && Storage::disk('public')->exists($about->profile_image)) {
+            Storage::disk('public')->delete($about->profile_image);
+        }
+
+        $data['profile_image'] = $request->file('profile_image')
+            ->store('abouts/profile-images', 'public');
+    }
+
+    // Upload new resume
+    if ($request->hasFile('resume')) {
+
+        if ($about->resume && Storage::disk('public')->exists($about->resume)) {
+            Storage::disk('public')->delete($about->resume);
+        }
+
+        $data['resume'] = $request->file('resume')
+            ->store('abouts/resumes', 'public');
+    }
+
+    $about->update($data);
 
     return response()->json([
         'success' => true,
