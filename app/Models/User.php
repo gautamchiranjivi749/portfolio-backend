@@ -15,11 +15,14 @@ use App\Models\Service;
 use App\Models\Certificate;
 use App\Models\SocialLink;
 use App\Models\Contact;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
+
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

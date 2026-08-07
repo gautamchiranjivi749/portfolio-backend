@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreAboutRequest;
 use App\Http\Requests\UpdateAboutRequest;
 use App\Models\About;
+use Intervention\Image\Laravel\Facades\Image;
 use App\Http\Resources\AboutResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,11 +35,25 @@ class AboutController extends Controller
 
     $data['user_id'] = auth()->id();
 
-    // Upload profile image
-    if ($request->hasFile('profile_image')) {
-        $data['profile_image'] = $request->file('profile_image')
-            ->store('abouts/profile-images', 'public');
-    }
+    // Upload profile image & rezize it to 400x400 pixels
+
+   if ($request->hasFile('profile_image')) {
+
+    $image = $request->file('profile_image');
+
+    $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+   $image = Image::read($request->file('profile_image'));
+
+$image->cover(400, 400);
+
+Storage::disk('public')->put(
+    "abouts/profile-images/{$imageName}",
+    $image->toJpeg(90)
+);
+
+    $data['profile_image'] = 'abouts/profile-images/' . $imageName;
+}
 
     // Upload resume
     if ($request->hasFile('resume')) {
